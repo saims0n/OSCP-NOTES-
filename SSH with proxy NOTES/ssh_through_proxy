@@ -1,0 +1,25 @@
+Connecting to ssh through proxychains...
+
+configure proxy chain /etc/proxychains.conf
+
+http 192.168.56.101 3128  Where 3128 is squid proxy port
+
+and then 
+
+proxychains ssh john@192.168.56.101
+
+
+Or we can use ssh tunneling to connect with remote host...
+
+proxytunnel -p 192.168.1.24:3128 -d 127.0.0.1:22 -a 1234
+
+Then 
+
+ssh john@127.0.0.1 -p 1234
+
+you'll be connected...
+
+We can use /bin/bash after the port if .bashrch is configured wrongly...
+
+ssh john@127.0.0.1 -p 1234 /bin/bash
+

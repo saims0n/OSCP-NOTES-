@@ -1,0 +1,13 @@
+
+October 2017 edited October 2017 in Other
+
+I have seen a lot of people ask about this yet there are not too many good online resources that explain it simply.
+
+When obtaining a reverse shell with a Netcat listener, it is by default non-interactive and you cannot pass keyboard shortcuts or special characters such as tab.
+
+It is quite simple to work around. For starters, in your shell, run python -c 'import pty;pty.spawn("/bin/bash");' to obtain a partially interactive bash shell.
+
+After that, do CTRL+Z to background Netcat. Enter stty raw -echo in your terminal, which will tell your terminal to pass keyboard shortcuts etc. through. Once that is done, run the command fg to bring Netcat back to the foreground. Note you will not be able to see what you are typing in terminal after you change your stty setting. You should now have tab autocomplete as well as be able to use interactive commands such as su and nano.
+
+If you want to see it in action, check out ippsec's YouTube videos, as he uses this exact method in quite a few of them: ippsec's channel
+
