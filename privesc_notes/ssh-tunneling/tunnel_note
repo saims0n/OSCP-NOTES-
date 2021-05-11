@@ -1,0 +1,1 @@
+ssh -L 8080:127.0.0.1:8082 daniel@10.10.10.102    using ssh to forward the remot port to our local host need to execute this command from our localhost and tunnel remort port 8082 as 8080 to our localhost we need password of user by which we're tunneling
