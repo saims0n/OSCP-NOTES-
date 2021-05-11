@@ -1,0 +1,60 @@
+On out local py use this command to forward the remote port to our local pc...
+we need password of the remote host and listening port which we're going to forward.
+
+here -L is local port: mean our port on which we're going to listen to server request...
+
+127.0.0.1 is our ip where we're tunneling the service...
+
+8080 is remote port where service is running on this port..
+
+then username and remote ip...
+
+
+  ssh -L 8082:127.0.0.1:8080 poseidon@192.168.56.38
+
+
+now we can surf as---:>  http://localhost:8082/
+
+
+
+
+Using socket we can tunnet the remote port to our pc...
+to do this we need shell of the remote host and execute this command to remote to tunnel the port to every ip...on remote.
+
+  socat TCP-LISTEN:8081,fork TCP:127.0.0.1:8080
+
+
+where tcp-listen:8081 is our port where we want to listen...
+
+tcp:127.0.0.1 is remote localhost where service is running
+
+8080 is port on which service is running...
+
+socket used to tunnel for every network phases of the remote host...
+
+i mean : 0.0.0.0:8080  socket do this to the local port
+
+
+
+
+One More Example of Tunneling with socat...
+
+
+Theres two more sites are enabled....
+
+
+since we don't have the ssh password we are not able to tunnel the port using ssh
+
+so we're going to use socat to tunnel to local port ...
+
+
+
+port 80 tunnelinig....8888
+
+socat TCP-LISTEN:8888,fork TCP:127.0.0.1:80 &
+
+port 6534 tunniling...to 7777
+
+socat TCP-LISTEN:7777,fork TCP:127.0.0.1:65334 &
+
+Now we can browse both of the with their ip 192.168.56.48:8888 (7777 for another)

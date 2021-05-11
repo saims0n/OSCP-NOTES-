@@ -1,0 +1,48 @@
+found in prime 1 vulnhub
+
+
+https://lifesfun101.github.io/2019/09/15/Prime_1-walkthrough.html
+
+
+
+Enumerating these files further.
+
+www-data@ubuntu:/home/saket$ cat key.txt enc.txt
+cat key.txt enc.txt
+I know you are the fan of ippsec.
+
+So convert string "ippsec" into md5 hash and use it to gain yourself in your real form.
+nzE+iKr82Kh8BOQg0k/LViTZJup+9DReAsXd/PCtFZP5FHM7WtJ9Nz1NmqMi9G0i7rGIvhK2jRcGnFyWDT9MLoJvY1gZKI2xsUuS3nJ/n3T1Pe//4kKId+B3wfDW/TgqX6Hg/kUj8JO08wGe9JxtOEJ6XJA3cO/cSna9v3YVf/ssHTbXkb+bFgY7WLdHJyvF6lD/wfpY2ZnA1787ajtm+/aWWVMxDOwKuqIT1ZZ0Nw4=
+
+www-data to saket user
+
+The key.txt file urges to hash “ippsec” string into md5 format.
+
+root@kali:~# echo -n ippsec | md5sum
+366a74cb3c959de17d61db30591c39d1  -
+
+The enc.txt file output looks like a base64 string, which Kali can be used to decode. However, when trying to simply decode it, the result turns out fruitless. This is due to base64 string being encrypted with AES encryption.
+
+There is an online tool which can help with decryption at https://www.devglan.com/online-tools/aes-encryption-decryption. However, this can also be done manually as show below.
+
+As per OpenSSL documentation the “The key and the IV are given in hex.” There is no IV in this case, however the key has to be converted to hex.
+
+root@kali:~/vulnhub/prime_level1# echo -n 366a74cb3c959de17d61db30591c39d1 | od -A n -t x1
+ 33 36 36 61 37 34 63 62 33 63 39 35 39 64 65 31
+ 37 64 36 31 64 62 33 30 35 39 31 63 33 39 64 31
+
+After playing around with different encryption ciphers the suitable one has been found - AES 256 ECB.
+
+Below are the piped commands needed to decrypt the base64 string. First the base64 string has to be piped into openssl. openssl needes to be then piped in base64, following by base64 decoding. opennssl “enc” flag indicates that encryption operating needs to be performed, -aes-256-ecb flag indicates the cipher to be used, -d flag indicates decryption, -a flag tells OpenSSL to apply base64-encoding before or after the operation, -K flag specifies the key to be used.
+
+root@kali:~/vulnhub/prime_level1# echo "nzE+iKr82Kh8BOQg0k/LViTZJup+9DReAsXd/PCtFZP5FHM7WtJ9Nz1NmqMi9G0i7rGIvhK2jRcGnFyWDT9MLoJvY1gZKI2xsUuS3nJ/n3T1Pe//4kKId+B3wfDW/TgqX6Hg/kUj8JO08wGe9JxtOEJ6XJA3cO/cSna9v3YVf/ssHTbXkb+bFgY7WLdHJyvF6lD/wfpY2ZnA1787ajtm+/aWWVMxDOwKuqIT1ZZ0Nw4=" | openssl enc -aes-256-ecb -d -a -K 3336366137346362336339353964653137643631646233303539316333396431 | base64 | base64 -d
+Dont worry saket one day we will reach to
+our destination very soon. And if you forget 
+your username then use your old password
+==> "tribute_to_ippsec"
+
+Victor,
+
+From above message it looks like the password for user saket is obtained. Now it’s time to switch from www-data to saket
+
+
