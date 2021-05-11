@@ -1,0 +1,21 @@
+Blog link: https://blog.stalkr.net/2015/12/from-remote-shell-to-remote-terminal.html
+
+
+Better: tty over socket
+In case you needed to be convinced about socat magic:
+
+    server:
+    1
+    	
+    socat TCP-LISTEN:1337,reuseaddr,fork EXEC:bash,pty,stderr,setsid,sigint,sane
+    client:
+    
+    	
+    socat FILE:`tty`,raw,echo=0 TCP:localhost:1337
+
+
+   > socat TCP-LISTEN:2222,reuseaddr,fork EXEC:bash,pty,stderr,setsid,sigint,sane
+    
+   > socat FILE:`tty`,raw,echo=0 TCP:192.168.56.48:1337
+
+That's it! We can connect, we have a tty, we can do Ctrl-C (^C) and run tty programs: top, vim, emacs, ssh, su, sudo, etc.

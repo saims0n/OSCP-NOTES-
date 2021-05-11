@@ -1,0 +1,1 @@
+nmap 192.168.56.43 -p 80 --script=http-shellshock --script-args uri=/cgi-bin/test.cgi

