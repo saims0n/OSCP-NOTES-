@@ -29,3 +29,12 @@ Shell Spawning
     (From within nmap)
 
     !sh
+ 
+ This will work most of the time when there is no python
+ 
+        /usr/bin/script -qc /bin/bash /dev/null
+        
+     Cltr+z 
+     stty raw -echo;fg               
+
+you'll get the proper shell   
